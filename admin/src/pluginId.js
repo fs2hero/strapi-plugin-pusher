@@ -4,4 +4,6 @@ const pluginId = pluginPkg.name.replace(
   ''
 );
 
+console.log(pluginId)
+
 module.exports = pluginId;
