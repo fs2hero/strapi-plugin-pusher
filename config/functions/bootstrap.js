@@ -6,25 +6,41 @@ module.exports = () => {
   // socket.io to the server, to be used anywhere  //
   // ********************************************* //
   const io = require('socket.io')(strapi.server);
-  const redisAdapter = require('socket.io-redis');
-  io.adapter(redisAdapter({ host: 'localhost', port: 6379 }));
+  const { createClient } = require('redis');
+  const redisAdapter = require('@socket.io/redis-adapter');
+  const pubClient = createClient({ host: 'localhost', port: 6379 });
+  const subClient = pubClient.duplicate();
+  io.adapter(redisAdapter(pubClient, subClient));
+
   io.on('connect', async function (socket) {
     try {
-      const { jwt } = socket.handshake.query
+      const { token:jwt } = socket.handshake.query
+      strapi.log.warn('connect ', socket.id,' ',jwt)
       const payload = await strapi.plugins['users-permissions'].services.jwt.verify(jwt);
       // 1 - kill old connections for this user
       await strapi.plugins.pusher.services.connection.disconnect(payload.id)
       // 2 - load authenticated user data
-      const data = await strapi.query('user', 'users-permissions').findOne({ id: payload.id });
+      let data = await strapi.query('user', 'users-permissions').findOne({ ssoId: payload.id.toString() });
       // 3 - check if user exists
-      if (!data) throw Error("User not found")
+      if (!data) {
+        data = await strapi.plugins.pusher.services.connection.createUser(payload.id);
+        if(data.error) {
+          strapi.log.error('socket connect create user fail ',JSON.stringify(data))
+          socket.disconnect()
+          return;
+        }
+        data = data.data
+      }
       // 4 - register user id on connected socket
-      socket.user_id = payload.id
+      // socket.user_id = data.id
+      // socket.sso_id = data.ssoId
+      await strapi.query('user', 'users-permissions').update({id: data.id}, { socketId: socket.id });
       // 5 - join user to a room called user_${id} for future use
-      await socket.join(`user::${payload.id}`)
+      await strapi.io.of('/').adapter.remoteJoin(socket.id,`user::${data.id}`)
       // 6 - hook socket connection for extensions implementation
       await strapi.plugins.pusher.config.functions.connection(socket, data)
     } catch (error) {
+      strapi.log.error('connect error ',error)
       socket.disconnect()
     }
   });

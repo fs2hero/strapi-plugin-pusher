@@ -7,7 +7,32 @@
       "config": {
         "policies": []
       }
-    },{
+    },
+    {
+      "method": "PUT",
+      "path": "/connections/joinRoom",
+      "handler": "Connections.joinRoom",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "PUT",
+      "path": "/connections/leaveRoom",
+      "handler": "Connections.leaveRoom",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "PUT",
+      "path": "/connections/sendRoom",
+      "handler": "Connections.sendRoom",
+      "config": {
+        "policies": []
+      }
+    },
+    {
       "method": "DELETE",
       "path": "/connections/:user_id",
       "handler": "Connections.delete",
