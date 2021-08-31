@@ -2,6 +2,14 @@
   "routes": [
     {
       "method": "GET",
+      "path": "/connections/inRoom/:roomId",
+      "handler": "Connections.findRoomUser",
+      "config": {
+        "policies": []
+      }
+    },
+    {
+      "method": "GET",
       "path": "/connections",
       "handler": "Connections.find",
       "config": {

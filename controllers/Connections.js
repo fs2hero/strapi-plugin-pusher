@@ -3,28 +3,34 @@ const { sanitizeEntity } = require("strapi-utils")
 
 module.exports = {
   find: async (ctx) => {
-    const rooms = await strapi.io.of('/').adapter.allRooms();
-    strapi.log.info(`find rooms `,rooms.entries())
-    console.log(`find rooms `,Array.from(rooms))
     const sockets = await strapi.io.of('/').adapter.sockets(new Set());
-    strapi.log.info(`find sockets `,sockets.entries())
-    console.log(`find sockets `,Array.from(sockets))
 
-    // const connections = Object.values(strapi.io.sockets.connected).map(socket => socket.user_id)
     let data = await strapi.query('user', 'users-permissions').find({ socketId_in: Array.from(sockets) });
-    //entities.map(entity => sanitizeEntity(entity, { model: strapi.models.restaurant }))
     data = data.map(entity => {
       return sanitizeEntity(entity,{ model:strapi.query('user', 'users-permissions').model})
     })
-    ctx.send({
+    
+    return {
       connections: data
-    });
+    }
+  },
+  findRoomUser: async (ctx) => {
+    const { roomId } = ctx.params
+    const sockets = await strapi.io.of('/').adapter.sockets(new Set([roomId]));
+
+    let data = await strapi.query('user', 'users-permissions').find({ socketId_in: Array.from(sockets) });
+    data = data.map(entity => {
+      return sanitizeEntity(entity,{ model:strapi.query('user', 'users-permissions').model})
+    })
+    
+    return {
+      connections: data
+    }
   },
   delete: async (ctx) => {
     const { ssoId } = ctx.params
     let ret = await strapi.plugins.pusher.services.connection.disconnect(ssoId)
-    // const connection = Object.values(strapi.io.sockets.connected).find(socket => socket.user_id == ctx.params.user_id)
-    // if (connection) connection.disconnect()
+
     return {success: ret};
   },
   joinRoom: async (ctx) => {
