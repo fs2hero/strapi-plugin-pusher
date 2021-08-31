@@ -23,7 +23,6 @@ module.exports = {
     }
   },
   send : async (roomId, eventKey, data) => {
-    strapi.log.debug('send ',{roomId, eventKey, data})
     strapi.io.to(String(roomId)).emit(String(eventKey), data)    
   }  
 }

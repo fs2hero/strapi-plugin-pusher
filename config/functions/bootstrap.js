@@ -15,7 +15,7 @@ module.exports = () => {
   io.on('connect', async function (socket) {
     try {
       const { token:jwt } = socket.handshake.query
-      strapi.log.warn('connect ', socket.id,' ',jwt)
+      strapi.log.warn('PID=',process.pid,' connect ', socket.id,' jwt ',jwt)
       const payload = await strapi.plugins['users-permissions'].services.jwt.verify(jwt);
       // 1 - kill old connections for this user
       await strapi.plugins.pusher.services.connection.disconnect(payload.id)
@@ -40,7 +40,7 @@ module.exports = () => {
       // 6 - hook socket connection for extensions implementation
       await strapi.plugins.pusher.config.functions.connection(socket, data)
     } catch (error) {
-      strapi.log.error('connect error ',error)
+      strapi.log.error(process.pid,' connect error ',error)
       socket.disconnect()
     }
   });
@@ -48,4 +48,6 @@ module.exports = () => {
   strapi.io = io;
   strapi.io.send = strapi.plugins.pusher.services.notification.send
   strapi.io.join = strapi.plugins.pusher.services.notification.join
+
+  strapi.log.info('processId ',process.pid)
 };

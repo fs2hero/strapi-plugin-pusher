@@ -34,7 +34,7 @@
     },
     {
       "method": "DELETE",
-      "path": "/connections/:user_id",
+      "path": "/connections/:ssoId",
       "handler": "Connections.delete",
       "config": {
         "policies": []
