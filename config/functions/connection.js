@@ -7,5 +7,9 @@ module.exports = async (socket, user) => {
   //  so you can addapt the new user connection to fit    //
   //  your project usecase, like join to rooms or send    //
   //  a welcome notification to connected user.           //
-  // **************************************************** //  
+  // **************************************************** // 
+  // socket.on('sayToRoom',(data) => {
+  //   console.log('sayToRoom ',data)
+  //   strapi.io.send(data.roomId, data.eventKey, data.data)
+  // })
 }

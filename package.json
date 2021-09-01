@@ -1,6 +1,6 @@
 {
   "name": "strapi-plugin-pusher",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": false,
   "description": "A strapi plugin to allow socket connections over socket.io",
   "strapi": {

@@ -44,6 +44,7 @@ module.exports = () => {
       socket.disconnect()
     }
   });
+
   // 7 - register socket io inside strapi core to use it globally
   strapi.io = io;
   strapi.io.send = strapi.plugins.pusher.services.notification.send
